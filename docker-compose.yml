@@ -1,0 +1,27 @@
+version: "3.9"
+services:
+  grafana:
+    image: grafana/grafana:9.2.6
+    volumes:
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
+    ports:
+      - 3000:3000
+
+  prometheus:
+    image: prom/prometheus:v2.40.3
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node_exporter
+    command:
+      - '--path.rootfs=/host'
+    pid: host
+    restart: unless-stopped
+    volumes:
+      - '/:/host:ro,rslave'
+    links:
+      - prometheus
